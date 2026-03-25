@@ -1,0 +1,71 @@
+# ----------------------------------------------------------------------
+# GymGenie Root .gitignore
+# ----------------------------------------------------------------------
+
+# =========================
+# Security / Secrets (CRITICAL)
+# =========================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# =========================
+# Python / FastAPI (Backend)
+# =========================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+.venv/
+env/
+.env_dir/
+Pipfile.lock
+
+# Pytest / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Alembic / Databases
+*.sqlite3
+*.db
+
+# =========================
+# Node / React (Frontend)
+# =========================
+node_modules/
+dist/
+build/
+.npm/
+package-lock.json
+yarn.lock
+
+# =========================
+# System / OS Files
+# =========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# =========================
+# IDEs / Editor Folders
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Logs / Temporary Files
+# =========================
+*.log
+logs/
+temp/
+tmp/
+.claude/

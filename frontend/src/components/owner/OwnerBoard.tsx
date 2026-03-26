@@ -1,4 +1,5 @@
 import type { UserSummary } from "../../types/auth";
+import { PasswordField } from "../auth/PasswordField";
 import type { ActivityTrendPoint, GoalDistributionItem, GymSettings, OwnerMemberDetail, RetentionAnalytics } from "../../types/owner";
 import type { Product } from "../../types/product";
 import type { ActivityAlert } from "../../types/trainer";
@@ -204,7 +205,7 @@ export function OwnerBoard({
         >
           <input name="full_name" placeholder="Trainer name" required />
           <input name="email" placeholder="Trainer email" required type="email" />
-          <input name="password" placeholder="Temporary password" required type="password" />
+          <PasswordField name="password" placeholder="Temporary password" required />
           <button className="primary-button" type="submit">Create trainer</button>
         </form>
       </section>

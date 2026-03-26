@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { ApiError } from "../api/client";
 import { AuthCard } from "../components/auth/AuthCard";
 import { GoogleAuthButton } from "../components/auth/GoogleAuthButton";
+import { PasswordField } from "../components/auth/PasswordField";
 import { useAuth } from "../hooks/useAuth";
 
 export function RegisterPage() {
@@ -68,7 +69,7 @@ export function RegisterPage() {
         <form className="auth-form" onSubmit={onSubmit}>
           <input name="full_name" placeholder="Full name" required />
           <input name="email" placeholder="Email address" required type="email" />
-          <input name="password" placeholder="Password" required type="password" />
+          <PasswordField name="password" placeholder="Password" required />
           <input
             name="invite_code"
             onChange={(event) => setInviteCode(event.target.value)}

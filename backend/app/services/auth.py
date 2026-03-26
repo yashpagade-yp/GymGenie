@@ -1,3 +1,4 @@
+from datetime import timedelta
 import hashlib
 from uuid import UUID
 
@@ -8,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.security import create_access_token, create_refresh_token, decode_token, get_password_hash, verify_password
+from app.core.security import create_access_token, create_refresh_token, create_token, decode_token, get_password_hash, verify_password
 from app.models.enums import AuthProvider, UserRole
 from app.models.gym import Gym
 from app.models.user import User
@@ -90,11 +91,11 @@ async def request_password_reset(session: AsyncSession, email: str) -> PasswordR
     message = "If an account exists for that email, a password reset link has been generated."
     user = await session.scalar(select(User).where(User.email == email, User.is_active.is_(True)))
 
-    if user is None or user.password_hash is None or user.auth_provider != AuthProvider.EMAIL:
+    if user is None:
         return PasswordResetRequestResponse(message=message)
 
-    from app.core.security import create_token
-    from datetime import timedelta
+    if user.password_hash is None or user.auth_provider != AuthProvider.EMAIL:
+        return PasswordResetRequestResponse(message="This account uses Google sign-in and does not support password reset.")
 
     reset_token = create_token(
         str(user.id),
@@ -102,11 +103,7 @@ async def request_password_reset(session: AsyncSession, email: str) -> PasswordR
         timedelta(minutes=settings.password_reset_token_expire_minutes),
         {"pwd_sig": _password_signature(user.password_hash)},
     )
-    reset_url = None
-    if settings.debug or settings.environment == "development":
-        reset_url = (
-            f"{settings.frontend_base_url.rstrip('/')}/reset-password?token={reset_token}"
-        )
+    reset_url = f"{settings.frontend_base_url.rstrip('/')}/reset-password?token={reset_token}"
     return PasswordResetRequestResponse(message=message, reset_url=reset_url)
 
 

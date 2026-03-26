@@ -4,6 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ApiError } from "../api/client";
 import { AuthCard } from "../components/auth/AuthCard";
 import { GoogleAuthButton } from "../components/auth/GoogleAuthButton";
+import { PasswordField } from "../components/auth/PasswordField";
 import { useAuth } from "../hooks/useAuth";
 
 export function LoginPage() {
@@ -42,7 +43,7 @@ export function LoginPage() {
       <AuthCard title="Welcome back" subtitle="Login for member training, trainer CRM, or owner control.">
         <form className="auth-form" onSubmit={onSubmit}>
           <input name="email" placeholder="Email address" required type="email" />
-          <input name="password" placeholder="Password" required type="password" />
+          <PasswordField name="password" placeholder="Password" required />
           <div className="auth-inline-row">
             <span className="muted">Use your assigned account credentials.</span>
             <Link className="inline-link" to="/forgot-password">

@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { resetPassword } from "../api/auth";
 import { ApiError } from "../api/client";
 import { AuthCard } from "../components/auth/AuthCard";
+import { PasswordField } from "../components/auth/PasswordField";
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -49,8 +50,8 @@ export function ResetPasswordPage() {
       >
         <form className="auth-form" onSubmit={onSubmit}>
           <input defaultValue={initialToken} name="token" placeholder="Reset token" required type="text" />
-          <input name="password" placeholder="New password" required type="password" />
-          <input name="confirmPassword" placeholder="Confirm new password" required type="password" />
+          <PasswordField name="password" placeholder="New password" required />
+          <PasswordField name="confirmPassword" placeholder="Confirm new password" required />
           {error ? <p className="error-text">{error}</p> : null}
           {message ? <p className="success-text">{message}</p> : null}
           <button className="primary-button" disabled={isSubmitting} type="submit">

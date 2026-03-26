@@ -49,9 +49,12 @@ export function ForgotPasswordPage() {
           <section className="success-card">
             <p className="success-text">{message}</p>
             {resetUrl ? (
-              <a className="ghost-button" href={resetUrl}>
-                Open reset page
-              </a>
+              <>
+                <a className="ghost-button" href={resetUrl}>
+                  Open reset page
+                </a>
+                <input readOnly type="text" value={resetUrl} />
+              </>
             ) : null}
           </section>
         ) : null}

@@ -1,3 +1,4 @@
+import hashlib
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -7,11 +8,18 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.core.security import create_access_token, create_refresh_token, get_password_hash, verify_password
+from app.core.security import create_access_token, create_refresh_token, decode_token, get_password_hash, verify_password
 from app.models.enums import AuthProvider, UserRole
 from app.models.gym import Gym
 from app.models.user import User
-from app.schemas.auth import AuthResponse, GoogleLoginRequest, LoginRequest, RegisterRequest
+from app.schemas.auth import (
+    AuthResponse,
+    GoogleLoginRequest,
+    LoginRequest,
+    PasswordResetConfirmRequest,
+    PasswordResetRequestResponse,
+    RegisterRequest,
+)
 from app.schemas.user import UserSummary
 
 
@@ -22,6 +30,10 @@ def _build_auth_response(user: User) -> AuthResponse:
         refresh_token=create_refresh_token(str(user.id)),
         user=UserSummary.model_validate(user),
     )
+
+
+def _password_signature(password_hash: str | None) -> str:
+    return hashlib.sha256((password_hash or "").encode("utf-8")).hexdigest()
 
 
 async def register_member(session: AsyncSession, payload: RegisterRequest) -> AuthResponse:
@@ -60,8 +72,6 @@ async def login_with_password(session: AsyncSession, payload: LoginRequest) -> A
 
 
 async def refresh_session(session: AsyncSession, refresh_token: str) -> AuthResponse:
-    from app.core.security import decode_token
-
     try:
         payload = decode_token(refresh_token)
         if payload.get("type") != "refresh":
@@ -74,6 +84,52 @@ async def refresh_session(session: AsyncSession, refresh_token: str) -> AuthResp
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
     return _build_auth_response(user)
+
+
+async def request_password_reset(session: AsyncSession, email: str) -> PasswordResetRequestResponse:
+    message = "If an account exists for that email, a password reset link has been generated."
+    user = await session.scalar(select(User).where(User.email == email, User.is_active.is_(True)))
+
+    if user is None or user.password_hash is None or user.auth_provider != AuthProvider.EMAIL:
+        return PasswordResetRequestResponse(message=message)
+
+    from app.core.security import create_token
+    from datetime import timedelta
+
+    reset_token = create_token(
+        str(user.id),
+        "password_reset",
+        timedelta(minutes=settings.password_reset_token_expire_minutes),
+        {"pwd_sig": _password_signature(user.password_hash)},
+    )
+    reset_url = None
+    if settings.debug or settings.environment == "development":
+        reset_url = (
+            f"{settings.frontend_base_url.rstrip('/')}/reset-password?token={reset_token}"
+        )
+    return PasswordResetRequestResponse(message=message, reset_url=reset_url)
+
+
+async def reset_password(session: AsyncSession, payload: PasswordResetConfirmRequest) -> PasswordResetRequestResponse:
+    try:
+        token_payload = decode_token(payload.token)
+        if token_payload.get("type") != "password_reset":
+            raise ValueError("Invalid token type")
+        user_id = token_payload["sub"]
+        password_signature = token_payload.get("pwd_sig")
+    except Exception as exc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired reset token") from exc
+
+    user = await session.scalar(select(User).where(User.id == UUID(user_id), User.is_active.is_(True)))
+    if user is None or user.password_hash is None or user.auth_provider != AuthProvider.EMAIL:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired reset token")
+
+    if password_signature != _password_signature(user.password_hash):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired reset token")
+
+    user.password_hash = get_password_hash(payload.password)
+    await session.commit()
+    return PasswordResetRequestResponse(message="Password reset successful. You can now log in with your new password.")
 
 
 async def login_with_google(session: AsyncSession, payload: GoogleLoginRequest) -> AuthResponse:

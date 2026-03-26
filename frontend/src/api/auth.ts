@@ -1,4 +1,13 @@
-import type { AuthResponse, GoogleAuthConfig, LoginPayload, RegisterPayload, UserSummary } from "../types/auth";
+import type {
+  AuthResponse,
+  ForgotPasswordPayload,
+  GoogleAuthConfig,
+  LoginPayload,
+  PasswordResetResponse,
+  RegisterPayload,
+  ResetPasswordPayload,
+  UserSummary,
+} from "../types/auth";
 import { apiRequest } from "./client";
 
 export function login(payload: LoginPayload) {
@@ -21,6 +30,20 @@ export function currentUser() {
 
 export function getGoogleAuthConfig() {
   return apiRequest<GoogleAuthConfig>("/auth/google/config");
+}
+
+export function requestPasswordReset(payload: ForgotPasswordPayload) {
+  return apiRequest<PasswordResetResponse>("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function resetPassword(payload: ResetPasswordPayload) {
+  return apiRequest<PasswordResetResponse>("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
 export function loginWithGoogle(idToken: string, inviteCode?: string) {

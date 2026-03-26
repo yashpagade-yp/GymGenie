@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     environment: str = "development"
     debug: bool = False
     api_v1_prefix: str = "/api/v1"
+    frontend_base_url: str = "http://localhost:5173"
     cors_origins: list[str] = Field(
         default_factory=lambda: [
             "http://localhost:5173",
@@ -31,6 +32,7 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_token_expire_days: int = 7
+    password_reset_token_expire_minutes: int = 30
 
     google_client_id: str | None = Field(default=None, alias="GOOGLE_CLIENT_ID")
     google_client_secret: str | None = Field(default=None, alias="GOOGLE_CLIENT_SECRET")

@@ -9,11 +9,21 @@ from app.schemas.auth import (
     GoogleAuthConfigResponse,
     GoogleLoginRequest,
     LoginRequest,
+    PasswordResetConfirmRequest,
+    PasswordResetRequest,
+    PasswordResetRequestResponse,
     RefreshTokenRequest,
     RegisterRequest,
 )
 from app.schemas.user import UserSummary
-from app.services.auth import login_with_google, login_with_password, refresh_session, register_member
+from app.services.auth import (
+    login_with_google,
+    login_with_password,
+    refresh_session,
+    register_member,
+    request_password_reset,
+    reset_password,
+)
 
 router = APIRouter()
 
@@ -41,6 +51,22 @@ async def google_config() -> GoogleAuthConfigResponse:
 @router.post("/refresh", response_model=AuthResponse, summary="Refresh an access token")
 async def refresh(payload: RefreshTokenRequest, session: AsyncSession = Depends(get_db_session)) -> AuthResponse:
     return await refresh_session(session, payload.refresh_token)
+
+
+@router.post("/forgot-password", response_model=PasswordResetRequestResponse, summary="Request a password reset link")
+async def forgot_password(
+    payload: PasswordResetRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> PasswordResetRequestResponse:
+    return await request_password_reset(session, payload.email)
+
+
+@router.post("/reset-password", response_model=PasswordResetRequestResponse, summary="Reset password with a token")
+async def confirm_reset_password(
+    payload: PasswordResetConfirmRequest,
+    session: AsyncSession = Depends(get_db_session),
+) -> PasswordResetRequestResponse:
+    return await reset_password(session, payload)
 
 
 @router.get("/me", response_model=UserSummary, summary="Get the authenticated user")

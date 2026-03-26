@@ -34,3 +34,17 @@ export interface RegisterPayload {
   full_name: string;
   invite_code: string;
 }
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  password: string;
+}
+
+export interface PasswordResetResponse {
+  message: string;
+  reset_url?: string | null;
+}

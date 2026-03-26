@@ -43,6 +43,12 @@ export function LoginPage() {
         <form className="auth-form" onSubmit={onSubmit}>
           <input name="email" placeholder="Email address" required type="email" />
           <input name="password" placeholder="Password" required type="password" />
+          <div className="auth-inline-row">
+            <span className="muted">Use your assigned account credentials.</span>
+            <Link className="inline-link" to="/forgot-password">
+              Forgot password?
+            </Link>
+          </div>
           {error ? <p className="error-text">{error}</p> : null}
           <button className="primary-button" disabled={isSubmitting} type="submit">
             {isSubmitting ? "Signing in..." : "Login"}

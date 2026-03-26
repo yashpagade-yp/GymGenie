@@ -33,6 +33,20 @@ class RefreshTokenRequest(BaseModel):
     refresh_token: str
 
 
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetConfirmRequest(BaseModel):
+    token: str = Field(min_length=16)
+    password: str = Field(min_length=8, max_length=128)
+
+
+class PasswordResetRequestResponse(BaseModel):
+    message: str
+    reset_url: str | None = None
+
+
 class TokenPair(BaseModel):
     access_token: str
     refresh_token: str

@@ -8,7 +8,9 @@ import { LoginPage } from "./pages/LoginPage";
 import { MemberDashboardPage } from "./pages/MemberDashboardPage";
 import { OnboardingPage } from "./pages/OnboardingPage";
 import { OwnerDashboardPage } from "./pages/OwnerDashboardPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { TrainerDashboardPage } from "./pages/TrainerDashboardPage";
 
 function DashboardRedirect() {
@@ -34,6 +36,8 @@ export default function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route
         path="/onboarding"
